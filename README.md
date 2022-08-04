@@ -15,6 +15,9 @@ rtmp://localhost:3001/live/test
 
 
 4. 打开vls或者其他流媒体播放器
-设置拉流地址
 
-tmp://localhost:3001/live/test
+拉流地址
+rtmp://localhost:3001/live/test
+
+flv格式
+http://localhost:3002/live/test.flv
