@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>video</title>
+    <!-- Video.js -->
+    <link
+      href="https://unpkg.com/video.js/dist/video-js.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <script src="https://unpkg.com/flv.js/dist/flv.min.js"></script>
+    <script src="./videojs-flvjs-plugin.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <video
+        id="videojs-flvjs-player"
+        class="video-js vjs-default-skin vjs-big-play-centered"
+        width="1024"
+        height="768"
+      ></video>
+    </div>
+  </body>
+</html>
+
+<script src="./flver.js"></script>
+<script>
+  var flvUrl = 'http://localhost:3002/live/test.flv';
+
+  // 配置需要的功能
+  const flv = new flver({
+    element: document.getElementById('videojs-flvjs-player')
+  });
+
+  const player = flv.init();
+
+  // 拉流发生了错误，如HTTP连接失败、网络异常
+  player.onerror = e => {
+    if (e === 'NetworkError') {
+    }
+  };
+  // 获取到拉流的信息
+  player.onmedia = e => {
+    console.log('onmedia', e);
+  };
+  // 每个时刻拉流的详情
+  // player.onstats = e => {};
+
+  // 拉流结束了
+  player.oncomplete = e => {
+    console.log('oncomplete', e);
+  };
+
+  // 设置url
+  player.live(flvUrl);
+</script>
