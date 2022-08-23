@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>video</title>
-    <!-- Video.js -->
+    <title>Flvjs Videojs DEMO</title>
     <link
       href="https://unpkg.com/video.js/dist/video-js.css"
       rel="stylesheet"
@@ -20,35 +19,40 @@
         width="1024"
         height="768"
       ></video>
+      <p>state info:</p>
+      <p id="descrption"></p>
     </div>
   </body>
 </html>
 
 <script src="./flver.js"></script>
 <script>
+  // flv源地址
   var flvUrl = 'http://localhost:3002/live/test.flv';
 
   // 配置需要的功能
-  const flv = new flver({
-    element: document.getElementById('videojs-flvjs-player')
+  const flv = new Flver({
+    element: document.getElementById('videojs-flvjs-player'),
   });
 
   const player = flv.init();
 
   // 拉流发生了错误，如HTTP连接失败、网络异常
-  player.onerror = e => {
-    if (e === 'NetworkError') {
-    }
+  player.onerror = (e) => {
+    console.log('error', e);
   };
   // 获取到拉流的信息
-  player.onmedia = e => {
+  player.onmedia = (e) => {
     console.log('onmedia', e);
   };
   // 每个时刻拉流的详情
-  // player.onstats = e => {};
+  var dom = document.querySelector('#descrption');
+  player.onstats = (e) => {
+    dom.innerHTML = JSON.stringify(e);
+  };
 
   // 拉流结束了
-  player.oncomplete = e => {
+  player.oncomplete = (e) => {
     console.log('oncomplete', e);
   };
 

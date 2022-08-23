@@ -3,11 +3,11 @@
 const DEFAULTS = {
   element: '', // video element
   frameTracking: false, // 追帧设置
-  frameTrackingDelta: 2, // 延迟容忍度，即缓冲区末尾时间与当前播放时间的差值，大于该值会触发追帧
+  frameTrackingDelta: 5, // 延迟容忍度，即缓冲区末尾时间与当前播放时间的差值，大于该值会触发追帧
   updateOnStart: false, // 点击播放按钮后实时更新视频
   updateOnFocus: true, // 获得焦点后实时更新视频
   reconnect: false, // 断流后重连
-  reconnectInterval: 0 // 重连间隔(ms)
+  reconnectInterval: 2000, // 重连间隔(ms)
 };
 
 // Videojs/flvjs的配置文件
@@ -18,14 +18,14 @@ const VIDEOJS_LIVE_CONFIG = {
       cors: true,
       withCredentials: false,
       hasAudio: true,
-      hasVideo: true
+      hasVideo: true,
     },
     config: {
       //   enableWorker: true, // 启用分离的线程进行转换
       enableStashBuffer: false, // 关闭IO隐藏缓冲区
       stashInitialSize: 128, // 减少首帧显示等待时长
-      isLive: true
-    }
+      isLive: true,
+    },
   },
   autoplay: false,
   controls: true,
@@ -41,17 +41,17 @@ const VIDEOJS_LIVE_CONFIG = {
       { name: 'remainingTimeDisplay' }, // 剩下的时间
       {
         name: 'volumePanel', // 音量控制
-        inline: false // 不使用水平方式
+        inline: false, // 不使用水平方式
       },
-      { name: 'FullscreenToggle' } // 全屏
-    ]
+      { name: 'FullscreenToggle' }, // 全屏
+    ],
   },
   loadingSpinner: true,
   responsive: true,
-  sources: []
+  sources: [],
 };
 
-class flver {
+class Flver {
   player = null;
   flvPlayer = null;
   options = null;
@@ -80,7 +80,7 @@ class flver {
           const { flvPlayer } = this.tech({ IWillNotUseThisInPlugins: true });
           if (flvPlayer) {
             self.flvPlayer = flvPlayer;
-            self._bindFlvPlayerOptions();
+            self._bindPlayerOptions();
             self._bindFlvPlayerEvents();
             self._handleStuck();
           }
@@ -89,15 +89,15 @@ class flver {
     );
 
     this.player.live = this._live.bind(this);
-
     return this.player;
   }
 
+  // 设置flv直播源，并开始直播
   _live(source) {
     this.source = source;
     this.player.src({
       src: source,
-      type: 'video/x-flv'
+      type: 'video/x-flv',
     });
   }
 
@@ -113,6 +113,7 @@ class flver {
     }
   }
 
+  // 重建视频
   rebuild() {
     this.destroy();
     this.init();
@@ -157,7 +158,8 @@ class flver {
     }
   }
 
-  _updatePlayerbackRate = playbackRate => {
+  // 更新播放速度
+  _updatePlayerbackRate = (playbackRate) => {
     if (this.player) {
       if (this.player.playbackRate === playbackRate) {
         return;
@@ -166,15 +168,12 @@ class flver {
     }
   };
 
-  _bindFlvPlayerOptions() {
+  // 绑定videojs的相关事件
+  _bindPlayerOptions() {
     // 追帧设置
     if (this.options.frameTracking) {
       this.player.on('progress', this._handleFrameTracking.bind(this));
     }
-
-    this.player.on('ended', function() {
-      console.log('视频播放结束');
-    });
 
     // 点击播放按钮，更新视频
     if (this.options.updateOnStart) {
@@ -192,12 +191,14 @@ class flver {
     }
   }
 
+  // 绑定flv.js的相关事件
   _bindFlvPlayerEvents() {
-    this.flvPlayer.on(window.flvjs.Events.ERROR, e => {
+    this.flvPlayer.on(window.flvjs.Events.ERROR, (e) => {
       if (this.player.onerror) {
         this.player?.onerror(e);
       }
 
+      // ERROR 重建
       const { reconnect, reconnectInterval } = this.options;
       if (reconnect && reconnectInterval >= 0) {
         this.timeout = setTimeout(() => {
@@ -206,29 +207,10 @@ class flver {
       }
       console.log(`%c 视频ERROR： `, 'background:red;color:#fff', e);
     });
-    this.flvPlayer.on(window.flvjs.Events.STATISTICS_INFO, e => {
+    this.flvPlayer.on(window.flvjs.Events.STATISTICS_INFO, (e) => {
       if (this.player.onstats) {
         this.player.onstats(e);
       }
-      //   if (!this.player.paused()) {
-      //     if (e.speed === 0 && e.decodedFrames === 0) {
-      //       if (this.streamendTimeout) {
-      //         return;
-      //       }
-      //       this.streamendTimeout = setTimeout(() => {
-      //         //   拉取不到流
-      //         if (this.player.streamend) {
-      //           this.player.streamend(e);
-      //         }
-      //         this.rebuild();
-      //         clearTimeout(this.streamendTimeout);
-      //         this.streamendTimeout = null;
-      //       }, 1000);
-      //     } else {
-      //       clearTimeout(this.streamendTimeout);
-      //       this.streamendTimeout = null;
-      //     }
-      //   }
     });
     this.flvPlayer.on(window.flvjs.Events.MEDIA_INFO, this.player.onmedia);
     this.flvPlayer.on(
@@ -276,9 +258,9 @@ class flver {
 
     this.interval && clearInterval(this.interval);
     this.timeout && clearTimeout(this.timeout);
-    this.streamendTimeout && clearTimeout(this.streamendTimeout);
 
-    this.interval = this.timeout = this.streamendTimeout = null;
+    this.interval = null;
+    this.timeout = null;
     window.onfocus = null;
   }
 }

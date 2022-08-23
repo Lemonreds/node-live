@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HLS Videojs DEMO</title>
+    <link
+      href="https://unpkg.com/video.js/dist/video-js.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <script src="https://videojs-http-streaming.netlify.app/dist/videojs-http-streaming.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <video
+        id="videojs-hls-player"
+        class="video-js vjs-default-skin vjs-big-play-centered"
+        width="1024"
+        height="768"
+      ></video>
+    </div>
+  </body>
+</html>
+
+<script src="./hlser.js"></script>
+<script>
+  // hls 源地址
+  var hlsUrl =
+    'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8';
+
+  //   var hlsUrl = 'http://localhost:3002/live/test/index.m3u8';
+  var player = videojs('videojs-hls-player', {
+    html5: {
+      vhs: {
+        withCredentials: false,
+      },
+    },
+    liveui: false,
+    autoplay: false,
+    controls: true,
+    muted: false,
+    fluid: true,
+    controlBar: {
+      children: [
+        { name: 'playToggle' }, // 播放按钮
+        { name: 'liveDisplay' },
+        { name: 'progressControl' }, // 播放进度条
+        { name: 'durationDisplay' }, // 总时间
+        { name: 'remainingTimeDisplay' }, // 剩下的时间
+        {
+          name: 'volumePanel', // 音量控制
+          inline: false, // 不使用水平方式
+        },
+        { name: 'FullscreenToggle' }, // 全屏
+      ],
+    },
+    preload: true,
+    loadingSpinner: true,
+    responsive: true,
+    sources: [],
+  });
+  player.src({ src: hlsUrl, type: 'application/x-mpegURL' });
+  player.load();
+  player.play();
+</script>

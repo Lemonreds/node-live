@@ -2,7 +2,7 @@
 
 1. npm install
 
-2. npm run start
+2. 使用rtmp流 ：npm run start，使用hls流： npm run start:hls
 
 3. 打开 obs，设置推流地址
 
@@ -13,14 +13,15 @@
 
 rtmp://localhost:3001/live/test
 
-4. 打开 vls 或者其他流媒体播放器
+4. 打开 VLC 或者其他流媒体播放器
 
 拉流地址
 rtmp://localhost:3001/live/test
 
-flv 格式
+flv 格式拉流地址
 http://localhost:3002/live/test.flv
 
 5. 转成 hls 格式，配置 trans
 
+拉流地址
 http://localhost:3002/live/test/index.m3u8

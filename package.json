@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "./node_modules/.bin/nodemon app.js"
+    "start": "node app.js",
+    "start:hls": "node app.js TYPE=hls"
   },
   "author": "",
   "license": "ISC",
